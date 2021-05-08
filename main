@@ -21,7 +21,15 @@ def stego_hide(file, data):
             print("PixelData inicial: ", pixelData)
 
             # Crear nuevos datos para el pixel
-            pixelData = (pixelData[0], (pixelData[1] - pixelData[1] % 16 + c1), (pixelData[2] - pixelData[2] % 16 + c2))
+            newG = pixelData[1] - pixelData[1] % 16 + c1
+            newB = pixelData[2] - pixelData[2] % 16 + c2
+
+            if (pixelData[1] - newG > 8): newG += 16
+            elif (pixelData[1] - newG < -8): newG -= 16
+            if (pixelData[2] - newB > 8): newB += 16
+            elif (pixelData[2] - newB < -8): newB -= 16
+
+            pixelData = (pixelData[0], newG, newB)
             print("PixelData final: ", pixelData)
 
             # Modificar pixel
