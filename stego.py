@@ -18,16 +18,17 @@ def stego_hide(file, data, output):
 
             # Leer datos del pixel
             pixelData = px[pixel[0], pixel[1]]
+            print("Leyendo pixel ", pixel)
             print("PixelData inicial: ", pixelData)
 
             # Crear nuevos datos para el pixel
             newG = pixelData[1] - pixelData[1] % 16 + c1
             newB = pixelData[2] - pixelData[2] % 16 + c2
 
-            if (pixelData[1] - newG > 8): newG += 16
-            elif (pixelData[1] - newG < -8): newG -= 16
-            if (pixelData[2] - newB > 8): newB += 16
-            elif (pixelData[2] - newB < -8): newB -= 16
+            if (pixelData[1] - newG > 8) and (newG + 16 <= 255): newG += 16
+            elif (pixelData[1] - newG < -8) and (newG - 16 >= 0): newG -= 16
+            if (pixelData[2] - newB > 8) and (newB + 16 <= 255): newB += 16
+            elif (pixelData[2] - newB < -8) and (newG - 16 >= 0): newB -= 16
 
             pixelData = (pixelData[0], newG, newB)
             print("PixelData final: ", pixelData)
@@ -37,12 +38,17 @@ def stego_hide(file, data, output):
 
             # Asignar nuevo pixel
             pixel = (((pixel[0] * pixelData[0] // 16) % im.size[0]), \
-                     ((pixel[1] * pixelData[0] % 16) % im.size[1]))
+                     ((pixel[1] * pixelData[1] // 16) % im.size[1]))
 
             # Detectar colisión
+            pixelOri = pixel
             while pixel in recorrido:
-                pixel = (((pixel[0] + 10) % im.size[0]),
-                         ((pixel[1] + 10) % im.size[1]))
+                pixel = (((pixel[0] + 1) % im.size[0]),
+                         (pixel[1]))
+                if (pixel == pixelOri):
+                    pixel = ((pixel[0]),
+                             (pixel[1] + 1) % im.size[1])
+                    pixelOri = pixel
 
             # Añadir al recorrido
             recorrido.append(pixel)
@@ -66,22 +72,26 @@ def stego_find(file):
         while c != '\0':
             # Leer datos del pixel
             pixelData = px[pixel[0], pixel[1]]
-            print("PixelData: ", pixelData)
+            print("Leyendo pixel ", pixel)
 
             #Reconstruir caracter y almacenar en mensaje
-            c = chr((pixelData[1]%16)*16 + pixelData[2]%16)
-            print("Caracter reconstruido: ", c)
+            c = chr((pixelData[1] % 16) * 16 + pixelData[2] % 16)
             data += c
-            print("Mensaje parcial: ", data)
+            print("Caracter reconstruido: ", c)
 
             #Calcular siguiente pixel
             pixel = (((pixel[0] * pixelData[0] // 16) % im.size[0]), \
-                     ((pixel[1] * pixelData[0] % 16) % im.size[1]))
+                     ((pixel[1] * pixelData[1] // 16) % im.size[1]))
 
             # Detectar colisión
+            pixelOri = pixel
             while pixel in recorrido:
-                pixel = (((pixel[0] + 10) % im.size[0]),
-                         ((pixel[1] + 10) % im.size[1]))
+                pixel = (((pixel[0] + 1) % im.size[0]),
+                         (pixel[1]))
+                if (pixel == pixelOri):
+                    pixel = ((pixel[0]),
+                             (pixel[1] + 1) % im.size[1])
+                    pixelOri = pixel
 
             # Añadir al recorrido
             recorrido.append(pixel)
