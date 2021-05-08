@@ -1,6 +1,6 @@
 from PIL import Image
 
-def stego_hide(file, data):
+def stego_hide(file, data, output):
     #Abrir la imagen
     with Image.open(file) as im:
         px = im.load()
@@ -48,7 +48,7 @@ def stego_hide(file, data):
             recorrido.append(pixel)
 
         im.show()
-        im.save("golem_lipsum.bmp")
+        im.save(output)
 
 def stego_find(file):
     # Abrir la imagen
@@ -87,20 +87,3 @@ def stego_find(file):
             recorrido.append(pixel)
 
         return data
-
-
-data = b'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore' \
-       b' et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut' \
-       b' aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum' \
-       b' dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia' \
-       b' deserunt mollit anim id est laborum.\0'
-
-file_encode = "golem.jpg"
-file_decode = "golem_lipsum.bmp"
-print(data.decode("ascii"))
-
-stego_hide(file_encode, data)
-print(stego_find(file_decode))
-
-#TODO: Interfaz de uso
-#TODO: Mejora en la transformación de píxeles?
