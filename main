@@ -1,0 +1,98 @@
+from PIL import Image
+
+def stego_hide(file, data):
+    #Abrir la imagen
+    with Image.open(file) as im:
+        px = im.load()
+
+        # Establecer pixel de inicio
+        pixel = (1, 1)
+        recorrido = [pixel]
+
+        # Por cada caracter del mensaje
+        for c in data:
+            # Descomponer el caracter
+            c1 = c // 16
+            c2 = c % 16
+            print("Caracter: ", chr(c), ", charN: ", c, ", parte mayor: ", c1, ", parte menor: ", c2)
+
+            # Leer datos del pixel
+            pixelData = px[pixel[0], pixel[1]]
+            print("PixelData inicial: ", pixelData)
+
+            # Crear nuevos datos para el pixel
+            pixelData = (pixelData[0], (pixelData[1] - pixelData[1] % 16 + c1), (pixelData[2] - pixelData[2] % 16 + c2))
+            print("PixelData final: ", pixelData)
+
+            # Modificar pixel
+            im.putpixel(pixel, pixelData)
+
+            # Asignar nuevo pixel
+            pixel = (((pixel[0] * pixelData[0] // 16) % im.size[0]), \
+                     ((pixel[1] * pixelData[0] % 16) % im.size[1]))
+
+            # Detectar colisión
+            while pixel in recorrido:
+                pixel = (((pixel[0] + 10) % im.size[0]),
+                         ((pixel[1] + 10) % im.size[1]))
+
+            # Añadir al recorrido
+            recorrido.append(pixel)
+
+        im.show()
+        im.save("golem_lipsum.bmp")
+
+def stego_find(file):
+    # Abrir la imagen
+    with Image.open(file) as im:
+        px = im.load()
+
+        data = ""
+        c = '0'
+
+        # Establecer pixel de inicio
+        pixel = (1, 1)
+        recorrido = [pixel]
+
+        # Mientras no se detecte la secuencia de escape
+        while c != '\0':
+            # Leer datos del pixel
+            pixelData = px[pixel[0], pixel[1]]
+            print("PixelData: ", pixelData)
+
+            #Reconstruir caracter y almacenar en mensaje
+            c = chr((pixelData[1]%16)*16 + pixelData[2]%16)
+            print("Caracter reconstruido: ", c)
+            data += c
+            print("Mensaje parcial: ", data)
+
+            #Calcular siguiente pixel
+            pixel = (((pixel[0] * pixelData[0] // 16) % im.size[0]), \
+                     ((pixel[1] * pixelData[0] % 16) % im.size[1]))
+
+            # Detectar colisión
+            while pixel in recorrido:
+                pixel = (((pixel[0] + 10) % im.size[0]),
+                         ((pixel[1] + 10) % im.size[1]))
+
+            # Añadir al recorrido
+            recorrido.append(pixel)
+
+        return data
+
+
+data = b'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore' \
+       b' et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut' \
+       b' aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum' \
+       b' dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia' \
+       b' deserunt mollit anim id est laborum.\0'
+
+file_encode = "golem.jpg"
+file_decode = "golem_lipsum.bmp"
+print(data.decode("ascii"))
+
+stego_hide(file_encode, data)
+print(stego_find(file_decode))
+
+#TODO: Interfaz de uso
+#TODO: Mejora en la transformación de píxeles?
