@@ -1,25 +1,25 @@
 from PIL import Image
 
 def stego_hide(file, data, output):
-    #Abrir la imagen
+    # Open the image
     with Image.open(file) as im:
         px = im.load()
 
-        # Establecer pixel de inicio
+        # Establish initial pixel
         pixel = (1, 1)
-        recorrido = [pixel]
+        path = [pixel]
 
-        # Por cada caracter del mensaje
+        # For each character in the message
         for c in data:
-            # Descomponer el caracter
+            # Split the character in two
             c1 = c // 16
             c2 = c % 16
-            print("Caracter: ", chr(c), ", charN: ", c, ", parte mayor: ", c1, ", parte menor: ", c2)
+            #print("Caracter: ", chr(c), ", charN: ", c, ", parte mayor: ", c1, ", parte menor: ", c2)
 
-            # Leer datos del pixel
+            # Read target pixel data
             pixelData = px[pixel[0], pixel[1]]
-            print("Leyendo pixel ", pixel)
-            print("PixelData inicial: ", pixelData)
+            #print("Leyendo pixel ", pixel)
+            #print("PixelData inicial: ", pixelData)
 
             # Crear nuevos datos para el pixel
             newG = pixelData[1] - pixelData[1] % 16 + c1
@@ -31,23 +31,23 @@ def stego_hide(file, data, output):
             elif (pixelData[2] - newB < -8) and (newG - 16 >= 0): newB -= 16
 
             pixelData = (pixelData[0], newG, newB)
-            print("PixelData final: ", pixelData)
+            #print("PixelData final: ", pixelData)
 
-            # Modificar pixel
+            # Modify target pixel
             im.putpixel(pixel, pixelData)
 
-            # Comprobar si se ha terminado
-            if len(recorrido) == (im.size[0] * im.size[1] - 1):
-                print("Mensaje demasiado largo, finalizando")
+            # Check if there's available pixels left
+            if len(path) == (im.size[0] * im.size[1]):
+                #print("Mensaje demasiado largo, finalizando")
                 break
 
-            # Asignar nuevo pixel
+            # Assign new target pixel
             pixel = (((pixel[0] * pixelData[0] // 16) % im.size[0]), \
                      ((pixel[1] * pixelData[1] // 16) % im.size[1]))
 
-            # Detectar colisión
+            # Collision treatment
             pixelOri = pixel
-            while pixel in recorrido:
+            while pixel in path:
                 pixel = (((pixel[0] + 1) % im.size[0]),
                          (pixel[1]))
                 if (pixel == pixelOri):
@@ -55,45 +55,45 @@ def stego_hide(file, data, output):
                              (pixel[1] + 1) % im.size[1])
                     pixelOri = pixel
 
-            # Añadir al recorrido
-            recorrido.append(pixel)
+            # Append to path
+            path.append(pixel)
 
         im.show()
         im.save(output)
 
 def stego_find(file):
-    # Abrir la imagen
+    # Open the image
     with Image.open(file) as im:
         px = im.load()
 
         data = ""
         c = '0'
 
-        # Establecer pixel de inicio
+        # Establish initial pixel
         pixel = (1, 1)
-        recorrido = [pixel]
+        path = [pixel]
 
-        # Mientras no se detecte la secuencia de escape
+        # While escape sequence is not detected
         while c != '\0':
-            # Leer datos del pixel
+            # Read target pixel data
             pixelData = px[pixel[0], pixel[1]]
-            print("Leyendo pixel ", pixel)
+            #print("Leyendo pixel ", pixel)
 
-            #Reconstruir caracter y almacenar en mensaje
+            # Reconstruct character and append to message
             c = chr((pixelData[1] % 16) * 16 + pixelData[2] % 16)
             data += c
-            print("Caracter reconstruido: ", c)
+            #print("Caracter reconstruido: ", c)
 
-            # Comprobar si se ha terminado
-            if len(recorrido) == (im.size[0] * im.size[1] - 1): break
+            # Check if there are pixels left to read
+            if len(path) == (im.size[0] * im.size[1]): break
 
-            #Calcular siguiente pixel
+            # Assign new target pixel
             pixel = (((pixel[0] * pixelData[0] // 16) % im.size[0]), \
                      ((pixel[1] * pixelData[1] // 16) % im.size[1]))
 
-            # Detectar colisión
+            # Collision treatment
             pixelOri = pixel
-            while pixel in recorrido:
+            while pixel in path:
                 pixel = (((pixel[0] + 1) % im.size[0]),
                          (pixel[1]))
                 if (pixel == pixelOri):
@@ -101,7 +101,7 @@ def stego_find(file):
                              (pixel[1] + 1) % im.size[1])
                     pixelOri = pixel
 
-            # Añadir al recorrido
-            recorrido.append(pixel)
+            # Append to path
+            path.append(pixel)
 
         return data

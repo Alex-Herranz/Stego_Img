@@ -37,7 +37,7 @@ def hide():
 
     # Checking if the selected image is a png, jpg or bmp file
     while values['img'].endswith('.png') == False and values['img'].endswith('.jpg') == False and values[
-        'img'].endswith('.bmp') == False:
+        'img'].endswith('.bmp') == False and values['img'].endswith('.jpeg') == False:
         # If not pop up an error
         if event == 'Submit':
             sg.popup('Error: You must enter a valid image file (jpg, png or bmp)')
@@ -137,6 +137,8 @@ if event3 == 'Hide':
     data += '\0'
     name = file_encode.rsplit("/", 1)[1]
     name = name.split(".")[0]
+
+    # The image output is always .png but this can be changed for another format without aggressive compression like bmp
     file_output = outputPath + "/" + name + "_output.png"
     print(file_output)
     stego.stego_hide(file_encode, data.encode('ascii'), file_output)
