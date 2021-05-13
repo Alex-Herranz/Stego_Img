@@ -11,7 +11,7 @@ def hide():
         [sg.Text('Secret Message', size=(15, 1)), sg.InputText(key='msg')],
         [sg.Text('Please select an image')],
         [sg.Text('Image:', size=(8, 1)), sg.Input(key='img'), sg.FileBrowse()],
-        [sg.Text('Output Folder:'),sg.Input(key='folder'), sg.FolderBrowse(target='folder')],
+        [sg.Text('Output Folder:'), sg.Input(key='folder'), sg.FolderBrowse(target='folder')],
         [sg.Submit(), sg.Cancel()]
     ]
 
@@ -23,9 +23,9 @@ def hide():
         exit()
 
     # Checking if all the fields were completed in order to run the program
-    while values['msg'] == '' or values['img'] == '' or values['folder']== '':
+    while values['msg'] == '' or values['img'] == '' or values['folder'] == '':
         # If some field was empty pop up an error
-        if event =='Submit' :
+        if event == 'Submit':
             sg.popup('Error: You must enter all parameters')
         # If you cancel the program, exit
         else:
@@ -36,7 +36,8 @@ def hide():
         event, values = window.read()
 
     # Checking if the selected image is a png, jpg or bmp file
-    while values['img'].endswith('.png') == False and values['img'].endswith('.jpg') == False and values['img'].endswith('.bmp') == False:
+    while values['img'].endswith('.png') == False and values['img'].endswith('.jpg') == False and values[
+        'img'].endswith('.bmp') == False:
         # If not pop up an error
         if event == 'Submit':
             sg.popup('Error: You must enter a valid image file (jpg, png or bmp)')
@@ -76,9 +77,9 @@ def unhide():
         exit()
 
     # Checking if all the fields were completed in order to run the program
-    while values2['img2'] == '' :
+    while values2['img2'] == '':
         # If some field was empty pop up an error
-        if event2 == 'Submit' :
+        if event2 == 'Submit':
             sg.popup('Error: You must select an image')
         # If you cancel the program, exit
         else:
@@ -89,10 +90,10 @@ def unhide():
         event2, values2 = window2.read()
 
     # Checking if the selected image is a png, jpg or bmp file
-    while values2['img2'].endswith('.bmp') == False:
+    while not values2['img2'].endswith('.bmp') and not values2['img2'].endswith('.png'):
         # If not pop up an error
         if event2 == 'Submit':
-            sg.popup('Error: You must enter a valid image file (bmp)')
+            sg.popup('Error: You must enter a valid image file (bmp or png)')
         # If you cancel the program, exit
         else:
             window2.close()
@@ -118,8 +119,8 @@ sg.theme('Topanga')
 
 # Defining the layout of the window with the secret message and the image
 layout3 = [
-[sg.Text('Welcome to StegoBMP, select a steganography option')],
-    [ [sg.Button('Hide')],  [sg.Button('Unhide')]]
+    [sg.Text('Welcome to StegoBMP, select a steganography option')],
+    [[sg.Button('Hide')], [sg.Button('Unhide')]]
 ]
 
 window3 = sg.Window('StegoBMP', layout3)
@@ -136,7 +137,7 @@ if event3 == 'Hide':
     data += '\0'
     name = file_encode.rsplit("/", 1)[1]
     name = name.split(".")[0]
-    file_output = outputPath + "/" + name + "_output.bmp"
+    file_output = outputPath + "/" + name + "_output.png"
     print(file_output)
     stego.stego_hide(file_encode, data.encode('ascii'), file_output)
 
