@@ -36,6 +36,11 @@ def stego_hide(file, data, output):
             # Modificar pixel
             im.putpixel(pixel, pixelData)
 
+            # Comprobar si se ha terminado
+            if len(recorrido) == (im.size[0] * im.size[1] - 1):
+                print("Mensaje demasiado largo, finalizando")
+                break
+
             # Asignar nuevo pixel
             pixel = (((pixel[0] * pixelData[0] // 16) % im.size[0]), \
                      ((pixel[1] * pixelData[1] // 16) % im.size[1]))
@@ -78,6 +83,9 @@ def stego_find(file):
             c = chr((pixelData[1] % 16) * 16 + pixelData[2] % 16)
             data += c
             print("Caracter reconstruido: ", c)
+
+            # Comprobar si se ha terminado
+            if len(recorrido) == (im.size[0] * im.size[1] - 1): break
 
             #Calcular siguiente pixel
             pixel = (((pixel[0] * pixelData[0] // 16) % im.size[0]), \
